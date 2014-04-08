@@ -15,6 +15,7 @@ module Control.Exception.Enclosed.Either
 
 import Data.Text as T
 import Data.Maybe
+import Data.Monoid
 import Data.Either.Combinators
 import Control.DeepSeq
 
@@ -24,8 +25,9 @@ import Control.Exception.Lifted
 import Control.Monad.Trans.Either
 
 fromException' :: Exception a => SomeException -> a
-fromException' e = fromMaybe (throw (AssertionFailed "Not an IOException"))
-                 $ fromException e
+fromException' e
+  = fromMaybe (throw . AssertionFailed $ "Not an IOException:" <> show e)
+  $ fromException e
 
 -- | Runs provided @IO@ action, captures synchronous exceptions as @Left@ values,
 -- re-throws asynchronous exceptions.
