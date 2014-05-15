@@ -24,8 +24,8 @@ import Control.Exception.Enclosed
 import Control.Exception.Lifted
 import Control.Monad.Trans.Either
 
-fromException' :: Exception a => SomeException -> a
-fromException' e
+fromIOException' :: SomeException -> IOException
+fromIOException' e
   = fromMaybe (throw . AssertionFailed $ "Not an IOException:" <> show e)
   $ fromException e
 
@@ -46,8 +46,8 @@ eExIO   = EitherT . tryAnyDeep
 -- @nfdata@ typeclass
 eIoTry, eIOExIO :: (MonadBaseControl IO (EitherT e IO), NFData a)
                 => IO a -> EitherT IOException IO a
-eIoTry  = EitherT . fmap (mapLeft fromException') . tryAnyDeep
-eIOExIO = EitherT . fmap (mapLeft fromException') . tryAnyDeep
+eIoTry  = EitherT . fmap (mapLeft fromIOException') . tryAnyDeep
+eIOExIO = EitherT . fmap (mapLeft fromIOException') . tryAnyDeep
 
 -- | Runs provided @IO@ action, captures synchronous @IOException@ as left @Text@
 -- values, re-throws asynchronous exceptions (and synchronous non-IOExceptions).
